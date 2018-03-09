@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-header></v-header>
-    <div class="tab">
+    <div class="tab border-1px">
       <div class="tab-item">
         <router-link to="/goods">商品</router-link>
       </div>
@@ -19,7 +19,23 @@
 <script>
 import header from './components/header/header.vue'
 
+const ERR_OK = 0
+
 export default {
+  data () {
+    return {
+      seller: {}
+    }
+  },
+  created () {
+    this.$http.get('/api/seller').then((res) => {
+      res = res.body
+      if (res.errno === ERR_OK) {
+        this.seller = res.data
+        console.log(this.data)
+      }
+    })
+  },
   components: {
     'v-header': header
   }
@@ -27,6 +43,8 @@ export default {
 </script>
 
 <style lang='stylus' rel='stylesheet/stylus'>
+  @import "./common/stylus/mixin.styl"
+
     .tab
       display flex
       width 100%
@@ -35,6 +53,7 @@ export default {
       .tab-item
         flex 1
         text-align center
+        border-1px(rgba(7,17,27,0.1))
         & > a
           display block
           font-size 14px
