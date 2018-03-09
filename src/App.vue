@@ -11,9 +11,8 @@
       <div class="tab-item">
         <router-link to="/seller">商家</router-link>
       </div>
-      <router-view></router-view>
     </div>
-    <div class="content">i am content</div>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -36,4 +35,6 @@ export default {
       .tab-item
         flex 1
         text-align center
+        & > a
+          display block
 </style>

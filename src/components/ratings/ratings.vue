@@ -1,11 +1,11 @@
 <template>
-    <div class="header">i am header</div>
+    <div>i am ratings</div>
 </template>
 
 <script type='text/ecmascript-6'>
-
+    export default {}
 </script>
 
 <style lang='stylus' rel='stylesheet/stylus'>
-    export default {}
+
 </style>
