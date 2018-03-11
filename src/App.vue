@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-header></v-header>
+    <v-header :seller='seller'></v-header>
     <div class="tab border-1px">
       <div class="tab-item">
         <router-link to="/goods">商品</router-link>
@@ -32,7 +32,7 @@ export default {
       res = res.body
       if (res.errno === ERR_OK) {
         this.seller = res.data
-        console.log(this.data)
+        console.log(this.$data)
       }
     })
   },
