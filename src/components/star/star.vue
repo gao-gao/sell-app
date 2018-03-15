@@ -1,7 +1,7 @@
 <template>
     <div class="star" :class='starType'>
         <!-- v-for循环没有key值的时候需要绑定 -->
-        <span v-for="itemClass in itemClasses" :key='itemClass' :class="itemClass" class="star-item"></span>
+        <span v-for="(itemClass,index) in itemClasses" :key='index' :class="itemClass" class="star-item"></span>
     </div>
 </template>
 
@@ -50,6 +50,7 @@
 @import '../../common/stylus/mixin.styl'
 
     .star
+        font-size 0
         .star-item
         display inline-block
         background-repeat no-repeat
@@ -61,11 +62,11 @@
                 background-size 20px 20px
                 &:last-child
                     margin-right 0
-                &:on
+                &.on
                     bg-image('star48_on')
-                &:half
+                &.half
                     bg-image('star48_half')
-                &:off
+                &.off
                     bg-image('star48_off')
         &.star-36
              .star-item
@@ -75,11 +76,11 @@
                 background-size 15px 15px
                 &:last-child
                     margin-right 0
-                &:on
+                &.on
                     bg-image('star36_on')
-                &:half
+                &.half
                     bg-image('star36_half')
-                &:off
+                &.off
                     bg-image('star36_off')
         &.star-24
             .star-item
@@ -87,12 +88,12 @@
                 height 10px
                 margin-right 3px
                 background-size 10px 10px
-                &:last-child
+                &.last-child
                     margin-right 0
-                &:on
+                &.on
                     bg-image('star24_on')
-                &:half
+                &.half
                     bg-image('star24_half')
-                &:off
+                &.off
                     bg-image('star24_off')
-</style>
+    </style>
