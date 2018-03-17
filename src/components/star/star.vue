@@ -50,10 +50,9 @@
 @import '../../common/stylus/mixin.styl'
 
     .star
-        font-size 0
         .star-item
-        display inline-block
-        background-repeat no-repeat
+            display inline-block
+            background-repeat no-repeat
         &.star-48
             .star-item
                 width 20px
