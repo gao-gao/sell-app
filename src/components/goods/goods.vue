@@ -1,8 +1,8 @@
 <template>
     <div class="goods">
-        <div class="menu-wrapper" ref='menu-wrapper'>
+        <div class="menu-wrapper" ref='menuWrapper'>
             <ul>
-                <li v-for='(item,index) in goods' :key="index" class="menu-item">
+                <li v-for='(item,index) in goods' :key="index" class="menu-item" :class="{'current':currentIndex === index}" @click="selectMenu(index, $event)">
                     <span class="text border-1px">
                         <span v-show='item.type > 0' class="icon" :class="classMap[item.type]"></span>
                         {{item.name}}
@@ -10,9 +10,9 @@
                 </li>
             </ul>
         </div>
-        <div class="foods-wrapper" ref='foods-wrapper'>
+        <div class="foods-wrapper" ref='foodsWrapper'>
             <ul>
-                <li v-for='(item,index) in goods' :key="index" class="food-list">
+                <li v-for='(item,index) in goods' :key="index" class="food-list food-list-hook">
                     <h1 class="title">
                         {{item.name}}
                     </h1>
@@ -38,17 +38,21 @@
                 </li>
             </ul>
         </div>
+        <shopcart :delivery-proce='seller.deliveryPrice' :min-price='seller.minPrice'></shopcart>
     </div>
 </template>
 
 <script type='text/ecmascript-6'>
     import BScroll from 'better-scroll'
+    import shopcart from 'components/shopcart/shopcart'
 
     const ERR_OK = 0
     export default {
         data () {
             return {
-                goods: []
+                goods: [],
+                listHeight: [],
+                scrollY: 0
             }
         },
         props: {
@@ -64,15 +68,65 @@
                     this.goods = response.data
                     this.$nextTick(() => {
                         this._initScroll()
+                        this._caculateHeight()
                     })
                 }
             })
         },
         methods: {
             _initScroll () {
-                this.menuScroll = new BScroll(this.$ref.menuWrapper, {})
-                this.foodsScroll = new BScroll(this.$ref.foodsWrapper, {})
+                this.menuScroll = new BScroll(this.$refs.menuWrapper, {
+                    // 默认派发了一个点击事件
+                    click: true
+                })
+                this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
+                    // 滚动的时候实时探侦左边列表位置
+                    probeType: 3
+                })
+                this.foodsScroll.on('scroll', (pos) => {
+                    this.scrollY = Math.abs(Math.round(pos.y))
+                })
+            },
+            _caculateHeight () {
+                // 特地为js选择添加的class，并不是为了添加实际的样式
+                let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
+                let height = 0
+                this.listHeight.push(height)
+                // 获取所有li元素的高度，然后通过计算得到一个位置的数组
+                for (let i = 0; i < foodList.length; i++) {
+                    let item = foodList[i]
+                    height += item.clientHeight
+                    this.listHeight.push(height)
+                }
+                console.log(this.listHeight)
+            },
+            // 点击
+            selectMenu (index, event) {
+                // web端不阻止点击默认行为,原生事件没有_constructed属性
+                if (!event._constructed) {
+                    return
+                }
+                let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
+                let el = foodList[index]
+                // 滚动事件
+                this.foodsScroll.scrollToElement(el, 300)
+                console.log(index)
             }
+        },
+        computed: {
+            currentIndex () {
+                for (let i = 0; i < this.listHeight.length; i++) {
+                    let height1 = this.listHeight[i]
+                    let height2 = this.listHeight[i + 1]
+                    if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
+                        return i
+                    }
+                }
+                return 0
+            }
+        },
+        components: {
+            shopcart
         }
     }
 </script>
@@ -97,6 +151,14 @@
                 width 56px
                 line-height 14px
                 padding 0 12px
+                &.current
+                    position relative
+                    z-index 10
+                    margin-top -1px
+                    background-color #ffffff
+                    font-family 700
+                    .text
+                        border-none()
                 .icon
                     display inline-block
                     width 12px
@@ -155,9 +217,10 @@
                         color rgb(147,153,159)
                     .desc
                         margin-bottom 10px
-                    // .extra
-                    //     &.count
-                    //         margin-right 12px
+                        line-height 12px
+                    .extra
+                        .count
+                            margin-right 12px
                     .price
                         font-weight 700
                         line-height 24px
