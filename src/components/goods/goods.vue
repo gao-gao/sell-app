@@ -41,7 +41,7 @@
                 </li>
             </ul>
         </div>
-        <shopcart ref='shopcart' :select-foods="selectFoods" :delivery-proce='seller.deliveryPrice' :min-price='seller.minPrice'></shopcart>
+        <shopcart :select-foods="selectFoods" :delivery-proce='seller.deliveryPrice' :min-price='seller.minPrice'></shopcart>
     </div>
 </template>
 
@@ -49,6 +49,7 @@
     import BScroll from 'better-scroll'
     import shopcart from 'components/shopcart/shopcart'
     import cartcontrol from 'components/cartcontrol/cartcontrol'
+    import Vue from 'vue'
 
     const ERR_OK = 0
     export default {
@@ -56,7 +57,8 @@
             return {
                 goods: [],
                 listHeight: [],
-                scrollY: 0
+                scrollY: 0,
+                eventHub: new Vue()
             }
         },
         props: {
@@ -114,9 +116,6 @@
                 let el = foodList[index]
                 // 滚动事件
                 this.foodsScroll.scrollToElement(el, 300)
-            },
-            _drop (target) {
-                this.$refs.shopcart.drop(target)// 访问子组件
             }
         },
         computed: {
@@ -145,11 +144,6 @@
         components: {
             shopcart,
             cartcontrol
-        },
-        events: {
-            'cart.add' (target) {
-                this._drop(target)
-            }
         }
     }
 </script>

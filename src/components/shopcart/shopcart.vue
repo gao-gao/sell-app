@@ -18,11 +18,13 @@
             </div>
         </div>
         <div class="ball-container">
-            <transition name="drop">
-                <div v-for="(ball,index) in balls" :key="index" v-show="ball.show" class="ball">
-                    <div class="inner inner-hook"></div>
-                </div>
-            </transition>
+           <div v-for="(ball,index) in balls" :key="index">
+                <transition name="drop"  v-on:before-enter="beforeEnter" v-on:enter="enter" v-on:after-enter="afterEnter">
+                    <div v-show="ball.show" class="ball">
+                        <div class="inner inner-hook"></div>
+                    </div>
+                </transition>
+            </div>
         </div>
     </div>
 </template>
@@ -70,6 +72,11 @@
                 dropBalls: []
             }
         },
+        created () {
+            this.$parent.eventHub.$on('cart-add', (target) => {
+                this.drop(target)
+            })
+        },
         computed: {
             totalPrice () {
                 let total = 0
@@ -115,43 +122,40 @@
                     }
                 }
             },
-            transitions: {
-                drop: {
-                    beforeEnter (el) {
-                        let count = this.balls.length
-                        while (count--) {
-                            let ball = this.balls[count]
-                            if (ball.show) {
-                                let rect = ball.el.getBoundingClientRect()
-                                let x = rect.left - 32
-                                let y = -(window.innerHeight - rect.top - 22)
-                                el.style.display = ''
-                                el.style.webkitTransform = `translate(0, ${y}px, 0)`
-                                el.style.transform = `translate(0, ${y}px, 0)`
-                                let inner = el.getElementsByClassName('inner-hook')[0]
-                                inner.style.webkitTransform = `translate3d(${x}px, 0, 0)`
-                                inner.style.transform = `translate3d(${x}px, 0, 0)`
-                            }
-                        }
-                    },
-                    enter (el) {
-                        /* eslint-disable no-unused-vars */
-                        let rf = el.offsetHeight
-                        this.$nextTick(() => {
-                            el.style.webkitTransform = 'translate3d(0,0,0)'
-                            el.style.transform = 'translate3d(0,0,0)'
-                            let inner = el.getElementsByClassName('inner-hook')[0]
-                            inner.style.webkitTransform = 'translate3d(0,0,0)'
-                            inner.style.transform = 'translate3d(0,0,0)'
-                        })
-                    },
-                    afterEnter (el) {
-                        let ball = this.dropsBalls.shift()
-                        if (ball) {
-                            ball.show = false
-                            el.style.display = 'none'
-                        }
+            beforeEnter (el) {
+                let count = this.balls.length
+                while (count--) {
+                    let ball = this.balls[count]
+                    if (ball.show) {
+                        let rect = ball.el.getBoundingClientRect()
+                        let x = rect.left - 32
+                        let y = -(window.innerHeight - rect.top - 22)
+                        el.style.display = ''
+                        el.style.webkitTransform = `translate(0, ${y}px, 0)`
+                        el.style.transform = `translate(0, ${y}px, 0)`
+                        let inner = el.getElementsByClassName('inner-hook')[0]
+                        inner.style.webkitTransform = `translate3d(${x}px, 0, 0)`
+                        inner.style.transform = `translate3d(${x}px, 0, 0)`
                     }
+                }
+            },
+            enter (el, done) {
+                /* eslint-disable no-unused-vars */
+                let rf = el.offsetHeight
+                this.$nextTick(() => {
+                    el.style.webkitTransform = 'translate3d(0,0,0)'
+                    el.style.transform = 'translate3d(0,0,0)'
+                    let inner = el.getElementsByClassName('inner-hook')[0]
+                    inner.style.webkitTransform = 'translate3d(0,0,0)'
+                    inner.style.transform = 'translate3d(0,0,0)'
+                     el.addEventListener('transitionend', done)
+                })
+            },
+            afterEnter (el) {
+                let ball = this.dropsBalls.shift()
+                if (ball) {
+                    ball.show = false
+                    el.style.display = 'none'
                 }
             }
         }
