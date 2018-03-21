@@ -46,6 +46,7 @@
 </template>
 
 <script type='text/ecmascript-6'>
+    import Vue from 'vue'
     import BScroll from 'better-scroll'
     import shopcart from 'components/shopcart/shopcart'
     import cartcontrol from 'components/cartcontrol/cartcontrol'
@@ -56,7 +57,8 @@
             return {
                 goods: [],
                 listHeight: [],
-                scrollY: 0
+                scrollY: 0,
+                eventHub: new Vue()
             }
         },
         props: {
@@ -147,9 +149,6 @@
             cartcontrol
         },
         events: {
-            'cart.add' (target) {
-                this._drop(target)
-            }
         }
     }
 </script>
