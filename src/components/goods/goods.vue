@@ -41,7 +41,7 @@
                 </li>
             </ul>
         </div>
-        <shopcart :select-foods="selectFoods" :delivery-proce='seller.deliveryPrice' :min-price='seller.minPrice'></shopcart>
+        <shopcart ref='shopcart' :select-foods="selectFoods" :delivery-proce='seller.deliveryPrice' :min-price='seller.minPrice'></shopcart>
     </div>
 </template>
 
@@ -116,7 +116,7 @@
                 this.foodsScroll.scrollToElement(el, 300)
             },
             _drop (target) {
-                
+                this.$refs.shopcart.drop(target)// 访问子组件
             }
         },
         computed: {
@@ -148,7 +148,7 @@
         },
         events: {
             'cart.add' (target) {
-                this.drop(target)
+                this._drop(target)
             }
         }
     }
