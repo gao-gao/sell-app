@@ -32,19 +32,23 @@
                                     <span class="now">￥{{food.price}}</span>
                                     <span class="old" v-show='food.oldPrice'>￥{{food.oldPrice}}</span>
                                 </div>
+                                <div class="cartcontrol-wrapper">
+                                    <cartcontrol :food="food"></cartcontrol>
+                                </div>
                             </div>
                         </li>
                     </ul>
                 </li>
             </ul>
         </div>
-        <shopcart :delivery-proce='seller.deliveryPrice' :min-price='seller.minPrice'></shopcart>
+        <shopcart :select-foods="selectFoods" :delivery-proce='seller.deliveryPrice' :min-price='seller.minPrice'></shopcart>
     </div>
 </template>
 
 <script type='text/ecmascript-6'>
     import BScroll from 'better-scroll'
     import shopcart from 'components/shopcart/shopcart'
+    import cartcontrol from 'components/cartcontrol/cartcontrol'
 
     const ERR_OK = 0
     export default {
@@ -81,6 +85,7 @@
                 })
                 this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
                     // 滚动的时候实时探侦左边列表位置
+                    click: true,
                     probeType: 3
                 })
                 this.foodsScroll.on('scroll', (pos) => {
@@ -98,7 +103,6 @@
                     height += item.clientHeight
                     this.listHeight.push(height)
                 }
-                console.log(this.listHeight)
             },
             // 点击
             selectMenu (index, event) {
@@ -110,7 +114,9 @@
                 let el = foodList[index]
                 // 滚动事件
                 this.foodsScroll.scrollToElement(el, 300)
-                console.log(index)
+            },
+            _drop (target) {
+                
             }
         },
         computed: {
@@ -123,10 +129,27 @@
                     }
                 }
                 return 0
+            },
+            selectFoods () {
+                let foods = []
+                this.goods.forEach((good) => {
+                    good.foods.forEach((food) => {
+                        if (food.count) {
+                            foods.push(food)
+                        }
+                    })
+                })
+                return foods
             }
         },
         components: {
-            shopcart
+            shopcart,
+            cartcontrol
+        },
+        events: {
+            'cart.add' (target) {
+                this.drop(target)
+            }
         }
     }
 </script>
@@ -232,4 +255,8 @@
                             text-decoration line-through
                             font-size 10px
                             color rgb(147,153,159)
+                    .cartcontrol-wrapper
+                        position absolute
+                        right 0px
+                        bottom 12px
 </style>
