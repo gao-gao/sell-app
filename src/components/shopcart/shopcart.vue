@@ -50,6 +50,11 @@
                }
            }
         },
+        created () {
+            this.$parent.eventHub.$on('addcart', (target) => {
+                this.drop(target)
+            })
+        },
         data () {
             return {
                 balls: [
@@ -71,11 +76,6 @@
                 ],
                 dropBalls: []
             }
-        },
-        created () {
-            this.$parent.eventHub.$on('cart-add', (target) => {
-                this.drop(target)
-            })
         },
         computed: {
             totalPrice () {
@@ -131,28 +131,28 @@
                         let x = rect.left - 32
                         let y = -(window.innerHeight - rect.top - 22)
                         el.style.display = ''
-                        el.style.webkitTransform = `translate(0, ${y}px, 0)`
-                        el.style.transform = `translate(0, ${y}px, 0)`
+                        el.style.webkitTransform = `translate3d(0, ${y}px, 0)`
+                        el.style.transform = `translate3d(0, ${y}px, 0)`
                         let inner = el.getElementsByClassName('inner-hook')[0]
                         inner.style.webkitTransform = `translate3d(${x}px, 0, 0)`
                         inner.style.transform = `translate3d(${x}px, 0, 0)`
                     }
                 }
             },
-            enter (el, done) {
+            enter (el) {
                 /* eslint-disable no-unused-vars */
                 let rf = el.offsetHeight
                 this.$nextTick(() => {
                     el.style.webkitTransform = 'translate3d(0,0,0)'
                     el.style.transform = 'translate3d(0,0,0)'
-                    let inner = el.getElementsByClassName('inner-hook')[0]
+                    var inner = el.getElementsByClassName('inner-hook')[0]
                     inner.style.webkitTransform = 'translate3d(0,0,0)'
                     inner.style.transform = 'translate3d(0,0,0)'
-                     el.addEventListener('transitionend', done)
+                    // el.addEventListener('transitionend', done)
                 })
             },
             afterEnter (el) {
-                let ball = this.dropsBalls.shift()
+                let ball = this.dropBalls.shift()
                 if (ball) {
                     ball.show = false
                     el.style.display = 'none'

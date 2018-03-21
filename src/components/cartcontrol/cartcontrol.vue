@@ -32,8 +32,7 @@
                 } else {
                     this.food.count++
                 }
-                // 把消息传递给父组件goods，参数 消息名 需要传递消息的值
-                this.$parent.eventHub.$emit('cart-add', event.target)
+                this.$parent.eventHub.$emit('addcart', event.target)
             },
             decreaseCart (event) {
                 if (!event._constructed) {

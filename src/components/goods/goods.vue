@@ -46,10 +46,10 @@
 </template>
 
 <script type='text/ecmascript-6'>
+    import Vue from 'vue'
     import BScroll from 'better-scroll'
     import shopcart from 'components/shopcart/shopcart'
     import cartcontrol from 'components/cartcontrol/cartcontrol'
-    import Vue from 'vue'
 
     const ERR_OK = 0
     export default {
