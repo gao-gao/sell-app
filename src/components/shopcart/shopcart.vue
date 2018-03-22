@@ -33,6 +33,7 @@
             </transition-group> -->
         </div>
          <!-- 点击购物车出现详情页 -->
+        <transition name="fold">
         <div class="shopcart-list" v-show="listShow">
             <div class="list-header">
                 <h1 class="title">购物车</h1>
@@ -52,6 +53,7 @@
                 </ul>
             </div>
         </div>
+        </transition>
     </div>
 </template>
 
@@ -71,11 +73,7 @@ import cartcontrol from 'components/cartcontrol/cartcontrol'
            selectFoods: {
                type: Array,
                default () {
-                   return [{
-                       price: 10,
-                       count: 1,
-                       name: ''
-                   }]
+                   return this.dropBalls
                }
            }
         },
@@ -145,7 +143,7 @@ import cartcontrol from 'components/cartcontrol/cartcontrol'
                     return false
                 }
                 let show = !this.fold
-                return  show
+                return show
             }
         },
         methods: {
@@ -311,4 +309,35 @@ import cartcontrol from 'components/cartcontrol/cartcontrol'
                     border-radius 50%
                     background rgb(0,160,220)
                     transition all 0.4s linear
+        .shopcart-list
+            position absolute
+            top 0px
+            left 0px
+            z-index -1
+            width 100%
+            &.fold-enter-active,&.fold-enter-to
+                transition all 05s
+                transform translate3d(0,-100%,0)
+            &.fold-leave-active,&.fold-leave-to
+                transition all 0.5s
+                transform translate3d(0,100%,0)
+            .list-header
+                height 40px
+                line-height 40px
+                padding 0 18px
+                background-color #f3f5f7
+                border-bottom 1px solid rgba(7,17,27,0.1)
+                .title
+                    float left
+                    font-size 14px
+                    color rgb(7,17,27)
+                .empty
+                    float right
+                    font-size 12px
+                    color rgb(0,160,220)
+            .list-content
+                padding 0 18px
+                max-height 217px
+                background #ffffff
+                overflow hidden
 </style>
