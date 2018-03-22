@@ -1,6 +1,6 @@
 <template>
     <div class="shopcart">
-        <div class="content">
+        <div class="content" @click="toggleList">
             <div class="content-left">
                 <div class="logo-wrapper">
                     <div class="logo" :class="{'highlight':totalCount > 0}">
@@ -25,11 +25,39 @@
                     </div>
                 </transition>
             </div>
+            <!-- transition-group 会渲染出元素节点；默认  tag属性为<span> -->
+            <!-- <transition-group name="drop"  v-on:before-enter="beforeEnter" v-on:enter="enter" v-on:after-enter="afterEnter">
+                <div v-show="ball.show" class="ball" v-for="(ball,index) in balls" :key="index">
+                    <div class="inner inner-hook"></div>
+                </div>
+            </transition-group> -->
+        </div>
+         <!-- 点击购物车出现详情页 -->
+        <div class="shopcart-list" v-show="listShow">
+            <div class="list-header">
+                <h1 class="title">购物车</h1>
+                <span class="empty">清空</span>
+            </div>
+            <div class="list-content">
+                <ul>
+                    <li class="food" v-for="(food,index) in selectFoods" :key="index">
+                        <span class="name">{{food.name}}</span>
+                        <div class="price">
+                            <span>￥{{food.price*food.count}}</span>
+                        </div>
+                        <div class="cartcontrol-wrapper">
+                            <cartcontrol :food="food"></cartcontrol>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </template>
 
 <script type='text/ecmascript-6'>
+import cartcontrol from 'components/cartcontrol/cartcontrol'
+
     export default {
         props: {
            deliveryPrice: {
@@ -45,7 +73,8 @@
                default () {
                    return [{
                        price: 10,
-                       count: 1
+                       count: 1,
+                       name: ''
                    }]
                }
            }
@@ -74,7 +103,8 @@
                         show: false
                     }
                 ],
-                dropBalls: []
+                dropBalls: [],
+                fold: true
             }
         },
         computed: {
@@ -108,6 +138,14 @@
                 } else {
                     return 'enough'
                 }
+            },
+            listShow () {
+                if (!this.totalCount) {
+                    this.fold = true
+                    return false
+                }
+                let show = !this.fold
+                return  show
             }
         },
         methods: {
@@ -157,7 +195,16 @@
                     ball.show = false
                     el.style.display = 'none'
                 }
+            },
+            toggleList () {
+                if (!this.totalCount) {
+                    return
+                }
+                this.fold = !this.fold
             }
+        },
+        components: {
+            cartcontrol
         }
     }
 </script>
