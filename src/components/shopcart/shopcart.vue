@@ -1,64 +1,80 @@
 <template>
-    <div class="shopcart">
-        <div class="content" @click="toggleList">
-            <div class="content-left">
-                <div class="logo-wrapper">
-                    <div class="logo" :class="{'highlight':totalCount > 0}">
-                        <i class="icon-shopping_cart" :class="{'highlight':totalCount > 0}"></i>
+    <div>
+        <div class="shopcart">
+            <!-- 底部内容区域 -->
+            <div class="content" @click="toggleList">
+                <div class="content-left">
+                    <div class="logo-wrapper">
+                        <div class="logo" :class="{'highlight':totalCount > 0}">
+                            <i class="icon-shopping_cart" :class="{'highlight':totalCount > 0}"></i>
+                        </div>
+                        <div class="num" v-show="totalCount>0">{{totalCount}}</div>
                     </div>
-                    <div class="num" v-show="totalCount>0">{{totalCount}}</div>
+                    <div class="price" :class="{'highlight':totalPrice > 0}">￥{{totalPrice}}</div>
+                    <div class="desc">另需配送费￥{{deliveryPrice}}元</div>
                 </div>
-                <div class="price" :class="{'highlight':totalPrice > 0}">￥{{totalPrice}}</div>
-                <div class="desc">另需配送费￥{{deliveryPrice}}元</div>
-            </div>
-            <div class="content-right">
-                <div class="pay" :class="payClass">
-                    {{payDesc}}
+                <div class="content-right">
+                    <div class="pay" :class="payClass" @click="pay">
+                        {{payDesc}}
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="ball-container">
-           <div v-for="(ball,index) in balls" :key="index">
-                <transition name="drop"  v-on:before-enter="beforeEnter" v-on:enter="enter" v-on:after-enter="afterEnter">
-                    <div v-show="ball.show" class="ball">
+            <!-- 小球动画中的小球 -->
+            <div class="ball-container">
+                <div v-for="(ball,index) in balls" :key="index">
+                    <transition name="drop"  v-on:before-enter="beforeEnter" v-on:enter="enter" v-on:after-enter="afterEnter">
+                        <div v-show="ball.show" class="ball">
+                            <div class="inner inner-hook"></div>
+                        </div>
+                    </transition>
+                </div>
+                <!-- transition-group 会渲染出元素节点；默认  tag属性为<span> -->
+                <!-- <transition-group name="drop"  v-on:before-enter="beforeEnter" v-on:enter="enter" v-on:after-enter="afterEnter">
+                    <div v-show="ball.show" class="ball" v-for="(ball,index) in balls" :key="index">
                         <div class="inner inner-hook"></div>
                     </div>
-                </transition>
+                </transition-group> -->
             </div>
-            <!-- transition-group 会渲染出元素节点；默认  tag属性为<span> -->
-            <!-- <transition-group name="drop"  v-on:before-enter="beforeEnter" v-on:enter="enter" v-on:after-enter="afterEnter">
-                <div v-show="ball.show" class="ball" v-for="(ball,index) in balls" :key="index">
-                    <div class="inner inner-hook"></div>
+                <!-- 点击购物车出现已购商品详情页：
+                1.fold渐入渐出动画 ？？
+                2.遍历selectFoods完成详情页结构(通过goods组件处理并传入)
+                3.复用cartcontrol组件($emit报错)，cartcontrol=>goods=>shopcart 事件通信？？？
+                4.BScroll滚动实现滚动list(点击事件click:true) ？？
+                5.清空事件的绑定
+                6.遮罩层和详情页层次关系 从底层到上层 mask,shopcart-list,shopcart
+                -->
+            <transition name="fold">
+            <div class="shopcart-list" v-show="listShow">
+                <div class="list-header">
+                    <h1 class="title">购物车</h1>
+                    <span class="empty" @click="empty">清空</span>
                 </div>
-            </transition-group> -->
-        </div>
-         <!-- 点击购物车出现详情页 -->
-        <transition name="fold">
-        <div class="shopcart-list" v-show="listShow">
-            <div class="list-header">
-                <h1 class="title">购物车</h1>
-                <span class="empty">清空</span>
+                <div class="list-content" ref="listContent">
+                    <ul>
+                        <li class="food" v-for="(food,index) in selectFoods" :key="index">
+                            <span class="name">{{food.name}}</span>
+                            <div class="price">
+                                <span>￥{{food.price*food.count}}</span>
+                            </div>
+                            <div class="cartcontrol-wrapper">
+                                <cartcontrol :food="food"></cartcontrol>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <div class="list-content">
-                <ul>
-                    <li class="food" v-for="(food,index) in selectFoods" :key="index">
-                        <span class="name">{{food.name}}</span>
-                        <div class="price">
-                            <span>￥{{food.price*food.count}}</span>
-                        </div>
-                        <div class="cartcontrol-wrapper">
-                            <cartcontrol :food="food"></cartcontrol>
-                        </div>
-                    </li>
-                </ul>
-            </div>
+            </transition>
         </div>
+        <!-- 遮罩层 -->
+        <transition name="fade">
+        <div class="list-mask" v-show="listShow" @click="hideList"></div>
         </transition>
     </div>
 </template>
 
 <script type='text/ecmascript-6'>
 import cartcontrol from 'components/cartcontrol/cartcontrol'
+import BScroll from 'better-scroll'
 
     export default {
         props: {
@@ -73,7 +89,7 @@ import cartcontrol from 'components/cartcontrol/cartcontrol'
            selectFoods: {
                type: Array,
                default () {
-                   return this.dropBalls
+                   return [{}]
                }
            }
         },
@@ -102,6 +118,7 @@ import cartcontrol from 'components/cartcontrol/cartcontrol'
                     }
                 ],
                 dropBalls: [],
+                // 记录详情页是否被折叠
                 fold: true
             }
         },
@@ -113,6 +130,7 @@ import cartcontrol from 'components/cartcontrol/cartcontrol'
                 })
                 return total
             },
+            // 统计商品数量
             totalCount () {
                 let count = 0
                 this.selectFoods.forEach((food) => {
@@ -137,14 +155,28 @@ import cartcontrol from 'components/cartcontrol/cartcontrol'
                     return 'enough'
                 }
             },
+            // 判断是否已购商品决定是否可显示详情页，已购则返回v-show的结果为true，未购则直接返回false
             listShow () {
                 if (!this.totalCount) {
                     this.fold = true
                     return false
                 }
                 let show = !this.fold
+                if (show) {
+                    //  异步处理，提高体验，防止卡顿
+                    this.$nextTick(() => {
+                        if (!this.scroll) {
+                            this.scroll = new BScroll(this.$refs.listContent, {
+                                click: true
+                            })
+                        } else {
+                            this.scroll.refresh()
+                        }
+                    })
+                }
                 return show
             }
+
         },
         methods: {
             drop (el) {
@@ -194,11 +226,26 @@ import cartcontrol from 'components/cartcontrol/cartcontrol'
                     el.style.display = 'none'
                 }
             },
+            // 控制购物车列表的显示
             toggleList () {
                 if (!this.totalCount) {
                     return
                 }
                 this.fold = !this.fold
+            },
+            empty () {
+                this.selectFoods.forEach((food) => {
+                    food.count = 0
+                })
+            },
+            hideList () {
+                this.fold = true
+            },
+            pay () {
+                if (this.totalPrice < this.minPrice) {
+                    return
+                }
+                window.alert(`支付${this.totalPrice}元`)
             }
         },
         components: {
@@ -208,14 +255,14 @@ import cartcontrol from 'components/cartcontrol/cartcontrol'
 </script>
 
 <style lang='stylus' rel='stylesheet/stylus'>
+@import '../../common/stylus/mixin.styl'
     .shopcart
         position fixed
         left 0px
         bottom 0px
-        z-index 10
+        z-index 50
         width 100%
         height 48px
-        font-size 0
         .content
             display flex
             height 48px
@@ -315,12 +362,11 @@ import cartcontrol from 'components/cartcontrol/cartcontrol'
             left 0px
             z-index -1
             width 100%
-            &.fold-enter-active,&.fold-enter-to
-                transition all 05s
-                transform translate3d(0,-100%,0)
-            &.fold-leave-active,&.fold-leave-to
+            transform: translate3d(0, -100%, 0)
+            &.fold-enter-active,&.fold-leave-active
                 transition all 0.5s
-                transform translate3d(0,100%,0)
+            &.fold-enter,&.fold-leave-active
+                transform translate(0,0,0)
             .list-header
                 height 40px
                 line-height 40px
@@ -340,4 +386,41 @@ import cartcontrol from 'components/cartcontrol/cartcontrol'
                 max-height 217px
                 background #ffffff
                 overflow hidden
+                .food
+                    position relative
+                    padding 12px 0
+                    box-sizing border-box
+                    border-1px(rgba(7,17,27,0.1))
+                .name
+                    line-height 14px
+                    font-size 14px
+                    color rgb(7,17,27)
+                .price
+                    position absolute
+                    right 90px
+                    bottom 12px
+                    line-height 24px
+                    font-size 14px
+                    font-weight 700
+                    color rgb(240,20,20)
+                .cartcontrol-wrapper
+                    position absolute
+                    right 0
+                    bottom 6px
+    .list-mask
+            position fixed
+            top 0
+            left 0
+            width 100%
+            height 100%
+            z-index 40
+            // 遮罩虚化背景内容
+            bacground-filter blur(10px)
+            opacity 1
+            background rgba(7,17,27,0.6)
+            &.fade-enter-active,&fade-leave-active
+                transition all 0.5s
+            &.fade-enter, &.fade-leave-active
+                opacity 0
+                background rgba(7,17,27,0)
 </style>
