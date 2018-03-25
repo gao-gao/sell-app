@@ -57,7 +57,8 @@
                                 <span>￥{{food.price*food.count}}</span>
                             </div>
                             <div class="cartcontrol-wrapper">
-                                <cartcontrol :food="food"></cartcontrol>
+                                <cartcontrol :food="food"
+                                ></cartcontrol>
                             </div>
                         </li>
                     </ul>
@@ -366,7 +367,7 @@ import BScroll from 'better-scroll'
             &.fold-enter-active,&.fold-leave-active
                 transition all 0.5s
             &.fold-enter,&.fold-leave-active
-                transform translate(0,0,0)
+                transform translate3d(0,0,0)
             .list-header
                 height 40px
                 line-height 40px

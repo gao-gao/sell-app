@@ -32,7 +32,14 @@
                 } else {
                     this.food.count++
                 }
-                this.$parent.eventHub.$emit('addcart', event.target)
+                // 在兄弟组件shopcart中引用cartcontrol组件需要更改发射信息
+                let goodsObj = {}
+                if (this.$parent.eventHub) {
+                    goodsObj = this.$parent.eventHub
+                } else {
+                    goodsObj = this.$parent.$parent.eventHub
+                }
+                goodsObj.$emit('addcart', event.target)
             },
             decreaseCart (event) {
                 if (!event._constructed) {

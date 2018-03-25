@@ -17,7 +17,7 @@
                         {{item.name}}
                     </h1>
                     <ul>
-                        <li v-for='(food,index) in item.foods' :key="index" class="food-item border-1px">
+                        <li @click="selectFood(food,$event)" v-for='(food,index) in item.foods' :key="index" class="food-item border-1px">
                             <div class="icon">
                                 <img :src="food.icon" width='57px' height='57px'>
                             </div>
@@ -42,6 +42,8 @@
             </ul>
         </div>
         <shopcart :select-foods="selectFoods" :delivery-proce='seller.deliveryPrice' :min-price='seller.minPrice'></shopcart>
+        <!-- 通过ref拿到goods组件的子组件并调用其相关方法 -->
+        <food :food="selectedFood" ref="food"></food>
     </div>
 </template>
 
@@ -50,6 +52,7 @@
     import BScroll from 'better-scroll'
     import shopcart from 'components/shopcart/shopcart'
     import cartcontrol from 'components/cartcontrol/cartcontrol'
+    import food from 'components/food/food.vue'
 
     const ERR_OK = 0
     export default {
@@ -58,7 +61,9 @@
                 goods: [],
                 listHeight: [],
                 scrollY: 0,
-                eventHub: new Vue()
+                eventHub: new Vue(),
+                // 商品详情页
+                selectedFood: {}
             }
         },
         props: {
@@ -116,6 +121,13 @@
                 let el = foodList[index]
                 // 滚动事件
                 this.foodsScroll.scrollToElement(el, 300)
+            },
+            selectFood (food, event) {
+                if (!event._constructed) {
+                    return
+                }
+                this.selectedFood = food
+                this.$refs.food.show()
             }
         },
         computed: {
@@ -143,7 +155,8 @@
         },
         components: {
             shopcart,
-            cartcontrol
+            cartcontrol,
+            food
         }
     }
 </script>
